@@ -1,5 +1,5 @@
 import { analyzeMood } from "../services/ai";
-import { useApp } from "../context/AppContext";
+import { useApp } from "../context/appContext";
 
 export default function VoiceListener() {
     const { setMood, setGenre, setLanguage } = useApp();
