@@ -1,20 +1,31 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const SpeechRecognition =
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition;
+import { analyzeMood } from "../services/ai";
+import { useApp } from "../context/AppContext";
 
-export default function VoiceListener({ onResult }: any) {
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = false;
+export default function VoiceListener() {
+    const { setMood, setGenre, setLanguage } = useApp();
 
-    recognition.lang = localStorage.getItem("lang") || "en-US";
+    const startListening = () => {
+        const SpeechRecognition =
+            (window as any).SpeechRecognition ||
+            (window as any).webkitSpeechRecognition;
 
-    recognition.onresult = (event: any) => {
-        const text = event.results[event.results.length - 1][0].transcript;
-        onResult(text);
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-US";
+
+        recognition.onresult = async (e: any) => {
+            const text = e.results[0][0].transcript;
+            const data = await analyzeMood(text);
+            setMood(data.mood);
+            setGenre(data.genre);
+            setLanguage(data.language);
+        };
+
+        recognition.start();
     };
 
-    recognition.start();
-    return null;
+    return (
+        <button onClick={startListening} className="px-4 py-2 bg-green-500 text-white rounded">
+            🎙 Speak
+        </button>
+    );
 }
