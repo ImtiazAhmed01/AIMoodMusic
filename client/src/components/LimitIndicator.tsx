@@ -1,10 +1,7 @@
-
-const LimitIndicator = () => {
+export default function LimitIndicator({ remaining }: { remaining: number }) {
     return (
-        <div>
-
+        <div className="text-xs text-gray-400">
+            🎧 Remaining today: {remaining}
         </div>
     );
-};
-
-export default LimitIndicator;
+}
