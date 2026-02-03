@@ -9,9 +9,17 @@ export default function VoiceListener() {
             (window as any).SpeechRecognition ||
             (window as any).webkitSpeechRecognition;
 
+
         const recognition = new SpeechRecognition();
         recognition.lang = "en-US";
 
+        recognition.onresult = async (e: any) => {
+            const text = e.results[0][0].transcript;
+            const data = await analyzeMood(text);
+            setMood(data.mood);
+            setGenre(data.genre);
+            setLanguage(data.language);
+        };
         recognition.onresult = async (e: any) => {
             const text = e.results[0][0].transcript;
             const data = await analyzeMood(text);
@@ -28,4 +36,6 @@ export default function VoiceListener() {
             🎙 Speak
         </button>
     );
-}
+};
+
+

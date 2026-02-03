@@ -10,4 +10,10 @@ export default function App() {
       </AppProvider>
     </AuthProvider>
   );
+  <AuthProvider>
+    <AppProvider>
+      <Home />
+    </AppProvider>
+  </AuthProvider>
+  );
 }

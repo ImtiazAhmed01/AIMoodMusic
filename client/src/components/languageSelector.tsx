@@ -1,5 +1,6 @@
-import { useApp } from "../context/appContext"
-export default function languageSelector() {
+import { useApp } from "../context/appContext";
+
+export default function LanguageSelector() {
     const { language, setLanguage } = useApp();
 
     return (
