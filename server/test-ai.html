@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AI Music Test</title>
+</head>
+
+<body>
+    <h2>AI Music Test</h2>
+
+    <textarea id="prompt" rows="4" cols="50">
+I feel lonely and sad. Suggest music.
+  </textarea><br><br>
+
+    <button onclick="send()">Ask AI</button>
+
+    <pre id="result"></pre>
+
+    <script>
+        async function send() {
+            const prompt = document.getElementById("prompt").value;
+
+            const res = await fetch("http://localhost:5000/ai/ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt })
+            });
+
+            const data = await res.json();
+            document.getElementById("result").innerText =
+                JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+
+</html>

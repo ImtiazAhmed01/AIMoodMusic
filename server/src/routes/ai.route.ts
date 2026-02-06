@@ -4,6 +4,6 @@ const { aiLimiter } = require("../middleware/rateLimit");
 
 const router = express.Router();
 
-router.post("/music", aiLimiter, generateMusic);
+router.post("/ask", aiLimiter, generateMusic);
 
 module.exports = router;

@@ -22,6 +22,10 @@ app.get("/", (req: any, res: { json: (arg0: { status: string; message: string; t
 });
 const testRoute = require("./routes/test.route");
 app.use("/test", testRoute);
+const healthRoute = require("./routes/health.route");
 
+app.use("/health", healthRoute);
+app.use("/ai", aiRoutes);
+app.use("/youtube", youtubeRoutes);
 
 module.exports = app;
