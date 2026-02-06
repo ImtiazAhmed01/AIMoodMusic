@@ -1,41 +1,37 @@
-import { useApp } from "../context/appContext";
-import { analyzeMood } from "../services/ai";
-
-export default function VoiceListener() {
-    const { setMood, setGenre, setLanguage } = useApp();
-
+// src/components/voiceListener.tsx
+export default function VoiceListener({
+    onResult
+}: {
+    onResult: (text: string) => void;
+}) {
     const startListening = () => {
         const SpeechRecognition =
             (window as any).SpeechRecognition ||
             (window as any).webkitSpeechRecognition;
 
+        if (!SpeechRecognition) {
+            alert("Speech recognition not supported");
+            return;
+        }
 
         const recognition = new SpeechRecognition();
         recognition.lang = "en-US";
+        recognition.continuous = false;
 
-        recognition.onresult = async (e: any) => {
-            const text = e.results[0][0].transcript;
-            const data = await analyzeMood(text);
-            setMood(data.mood);
-            setGenre(data.genre);
-            setLanguage(data.language);
-        };
-        recognition.onresult = async (e: any) => {
-            const text = e.results[0][0].transcript;
-            const data = await analyzeMood(text);
-            setMood(data.mood);
-            setGenre(data.genre);
-            setLanguage(data.language);
+        recognition.onresult = (event: any) => {
+            const text = event.results[0][0].transcript;
+            onResult(text);
         };
 
         recognition.start();
     };
 
     return (
-        <button onClick={startListening} className="px-4 py-2 bg-green-500 text-white rounded">
+        <button
+            onClick={startListening}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
             🎙 Speak
         </button>
     );
-};
-
-
+}
