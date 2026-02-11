@@ -18,22 +18,23 @@
 //     }
 // };
 // module.exports = { generateMusic };
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { Request, Response } = require("express")
+const { GoogleGenerativeAI } = require("@google/generative-ai")
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
-const analyzeEmotion = async (req: { body: { prompt: any; }; }, res: { json: (arg0: any) => void; status: (arg0: number) => { (): any; new(): any; json: { (arg0: { error: string; }): void; new(): any; }; }; }) => {
+const analyzeEmotion = async (req: typeof Request, res: typeof Response) => {
     try {
-        const { prompt } = req.body;
+        const { prompt } = req.body
 
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash"
-        });
+        })
 
         const aiPrompt = `
 Analyze the user's mental state.
-Return JSON ONLY:
 
+Return JSON ONLY:
 {
   "mood": "",
   "energy": 0,
@@ -45,25 +46,25 @@ Return JSON ONLY:
   "explanation": ""
 }
 
-Scores must be 0-100.
+Scores must be 0–100.
 
 User text: "${prompt}"
-`;
+`
 
-        const result = await model.generateContent(aiPrompt);
-        const text = result.response.text();
+        const result = await model.generateContent(aiPrompt)
+        const text = result.response.text()
 
-        const cleaned = text.replace(/```json|```/g, "").trim();
-        const json = JSON.parse(cleaned);
+        const cleaned = text.replace(/```json|```/g, "").trim()
+        const json = JSON.parse(cleaned)
 
-        res.json(json);
+        return res.json(json)
 
-    } catch (err) {
-        console.error("AI ERROR:", err);
-        res.status(500).json({ error: "AI analysis failed" });
+    } catch (error) {
+        console.error("AI ERROR:", error)
+        return res.status(500).json({ error: "AI analysis failed" })
     }
-};
+}
 
 module.exports = {
     analyzeEmotion
-};
+}
