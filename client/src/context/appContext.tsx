@@ -1,4 +1,11 @@
 import { createContext, useContext, useState } from "react";
+const [user, setUser] = useState<any>(null);
+
+const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+};
+
 
 const AppContext = createContext<any>(null);
 

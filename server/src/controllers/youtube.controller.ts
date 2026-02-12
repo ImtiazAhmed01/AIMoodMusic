@@ -11,6 +11,7 @@
 
 const axios = require("axios")
 const Usage = require("../models/Usage")
+const auth = require("../middleware/auth");
 
 const calculateRelevance = (title: string, style: string) => {
     if (!style) return 10
@@ -93,6 +94,7 @@ const searchYoutube = async (req: any, res: any) => {
         return res.status(500).json({ error: "YouTube fetch failed" })
     }
 }
+router.post("/search", auth, searchYoutube);
 
 module.exports = {
     searchYoutube

@@ -13,3 +13,13 @@ const getHistory = async (req: any, res: any) => {
 };
 
 module.exports = { getHistory };
+const Usage = require("../models/Usage");
+
+const getHistory = async (req: any, res: any) => {
+    const history = await Usage.find({ userId: req.userId })
+        .sort({ createdAt: 1 });
+
+    res.json(history);
+};
+
+module.exports = { getHistory };

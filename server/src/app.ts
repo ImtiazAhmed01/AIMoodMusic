@@ -7,6 +7,8 @@ const aiRoutes = require("./routes/ai.route");
 const youtubeRoutes = require("./routes/youtube.route");
 const historyRoute = require("./routes/history.route");
 const sessionRoute = require("./routes/session.route");
+const authRoute = require("./routes/auth.route");
+
 
 
 const app = express();
@@ -18,6 +20,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/youtube", youtubeRoutes);
 app.use("/api/history", historyRoute);
 app.use("/api/session", sessionRoute);
+app.use("/api/auth", authRoute);
 app.get("/", (req: any, res: { json: (arg0: { status: string; message: string; time: string; }) => void; }) => {
     res.json({
         status: "OK",
