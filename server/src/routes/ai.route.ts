@@ -1,9 +1,8 @@
-const express = require("express");
-const { generateMusic } = require("../controllers/ai.controller");
-const { aiLimiter } = require("../middleware/rateLimit");
+const express = require("express")
+const router = express.Router()
 
-const router = express.Router();
+const { analyzeEmotion } = require("../controllers/ai.controller")
 
-router.post("/ask", aiLimiter, generateMusic);
+router.post("/analyze", analyzeEmotion)
 
-module.exports = router;
+module.exports = router

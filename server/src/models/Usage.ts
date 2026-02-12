@@ -1,8 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 
-const UsageSchema = new mongoose.Schema({
-    userId: String,
-    count: { type: Number, default: 0 }
-});
+const usageSchema = new mongoose.Schema({
+    date: String,
+    stress: Number,
+    energy: Number,
+    focus: Number,
+    emotional_load: Number,
+    sessionType: String,
+    feedback: String
+})
 
-module.exports = mongoose.model("Usage", UsageSchema);
+module.exports = mongoose.model("Usage", usageSchema)
