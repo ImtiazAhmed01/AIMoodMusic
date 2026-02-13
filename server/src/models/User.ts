@@ -1,12 +1,22 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
-    {
-        name: String,
-        email: { type: String, unique: true },
-        password: String
-    },
-    { timestamps: true }
-);
+const UserSchema = new mongoose.Schema({
+    name: { type: String },
+    email: { type: String, unique: true },
+    password: { type: String },
 
-module.exports = mongoose.model("User", userSchema);
+    profile: {
+        primaryMood: { type: String, default: "" },
+        preferredStyle: { type: String, default: "" },
+        avgStress: { type: Number, default: 0 },
+        avgEnergy: { type: Number, default: 0 },
+        bestSessionLength: { type: Number, default: 20 }
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+module.exports = mongoose.model("User", UserSchema);

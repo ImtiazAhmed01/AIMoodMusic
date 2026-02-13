@@ -34,6 +34,5 @@ const healthRoute = require("./routes/health.route");
 
 app.use("/health", healthRoute);
 app.use("/ai", aiRoutes);
-app.use("/youtube", youtubeRoutes);
 
 module.exports = app;
