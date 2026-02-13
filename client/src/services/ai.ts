@@ -1,16 +1,19 @@
-// src/services/ai.ts
+import axios from "axios";
+
+const API = "http://localhost:5000/api/youtube";
+
 export const askAI = async (prompt: string) => {
-    const res = await fetch("http://localhost:5000/ai/ask", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ prompt })
-    });
+    const token = localStorage.getItem("token");
 
-    if (!res.ok) {
-        throw new Error("AI request failed");
-    }
+    const res = await axios.post(
+        `${API}/search`,
+        { query: prompt },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
 
-    return res.json();
+    return res.data;
 };

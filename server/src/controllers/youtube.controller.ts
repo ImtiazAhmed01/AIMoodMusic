@@ -7,11 +7,14 @@
 // };
 
 // module.exports = { youtubeSearch };
-
-
+const express = require("express")
 const axios = require("axios")
 const Usage = require("../models/Usage")
-const auth = require("../middleware/auth");
+const auth = require("../middleware/auth")
+
+const router = express.Router()   // ✅ YOU WERE MISSING THIS
+
+/* ---------------- SCORING ---------------- */
 
 const calculateRelevance = (title: string, style: string) => {
     if (!style) return 10
@@ -24,19 +27,22 @@ const calculateFreshness = (date: string) => {
     return Math.max(0, 20 - yearsOld)
 }
 
-const calculateScore = (
-    video: any,
-    moodData: any
-) => {
+const calculateScore = (video: any, moodData: any) => {
     return (
-        calculateRelevance(video.title, moodData.recommendedStyle) +
+        calculateRelevance(video.title, moodData?.recommendedStyle) +
         calculateFreshness(video.publishedAt)
     )
 }
 
+/* ---------------- CONTROLLER ---------------- */
+
 const searchYoutube = async (req: any, res: any) => {
     try {
         const { query, moodData } = req.body
+
+        if (!query) {
+            return res.status(400).json({ error: "Query is required" })
+        }
 
         const ytRes = await axios.get(
             "https://www.googleapis.com/youtube/v3/search",
@@ -70,20 +76,22 @@ const searchYoutube = async (req: any, res: any) => {
 
         const playlist = {
             sessionType:
-                moodData.stress > 60
+                moodData?.stress > 60
                     ? "stress-reduction"
                     : "focus-boost",
             duration: "20 min",
             tracks: ranked
         }
 
-        // 🔥 Store Emotional History
+        /* ---------- STORE HISTORY ---------- */
+
         await Usage.create({
-            date: new Date().toISOString(),
-            stress: moodData.stress,
-            energy: moodData.energy,
-            focus: moodData.focus,
-            emotional_load: moodData.emotional_load,
+            user: req.user?.id, // if auth attaches user
+            date: new Date(),
+            stress: moodData?.stress,
+            energy: moodData?.energy,
+            focus: moodData?.focus,
+            emotional_load: moodData?.emotional_load,
             sessionType: playlist.sessionType
         })
 
@@ -94,8 +102,9 @@ const searchYoutube = async (req: any, res: any) => {
         return res.status(500).json({ error: "YouTube fetch failed" })
     }
 }
-router.post("/search", auth, searchYoutube);
 
-module.exports = {
-    searchYoutube
-}
+/* ---------------- ROUTE ---------------- */
+
+router.post("/search", auth, searchYoutube)
+
+module.exports = router   // ✅ EXPORT ROUTER (NOT OBJECT)
