@@ -1,11 +1,12 @@
-
-export default function MusicPlayer({ videoId }: { videoId: string }) {
+export default function MusicPlayer({ videoId }: any) {
     return (
-        <iframe
-            width="100%"
-            height="220"
-            src={`https://www.youtube.com/embed/${videoId}`}
-            allow="autoplay"
-        />
+        <div className="bg-black/40 p-4 rounded-xl">
+            <iframe
+                width="100%"
+                height="200"
+                src={`https://www.youtube.com/embed/${videoId}`}
+                allowFullScreen
+            />
+        </div>
     );
 }

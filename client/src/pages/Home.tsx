@@ -1,122 +1,102 @@
-import { useEffect, useState } from "react";
-import { askAI } from "../services/ai";
-import VoiceListener from "../components/voiceListener";
+import { useState } from "react";
+import { searchMusic } from "../services/youtube";
 import MusicPlayer from "../components/musicPlayer";
-import Visualizer from "../components/visualizer";
+import VoiceListener from "../components/voiceListener";
 
 export default function Home() {
     const [text, setText] = useState("");
-    const [tracks, setTracks] = useState<any[]>([]);
-    const [moodData, setMoodData] = useState<any>(null);
-    const [sessionType, setSessionType] = useState("");
+    const [playlist, setPlaylist] = useState<any>(null);
+    const [therapyMode, setTherapyMode] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // ✅ Redirect if not logged in
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            window.location.href = "/login";
-        }
-    }, []);
-
-    const sendPrompt = async (prompt: string) => {
-        if (!prompt.trim()) return;
-
+    const handleSearch = async (input: string) => {
+        if (!input) return;
         setLoading(true);
-
-        try {
-            const data = await askAI(prompt);
-
-            // Backend should return:
-            // {
-            //   sessionType,
-            //   duration,
-            //   tracks,
-            //   moodData
-            // }
-
-            setTracks(data.tracks || []);
-            setSessionType(data.sessionType || "");
-            setMoodData(data.moodData || null);
-        } catch (err) {
-            console.error(err);
-            alert("AI request failed");
-        }
-
+        const data = await searchMusic(input);
+        setPlaylist(data);
         setLoading(false);
     };
 
-    // 🎨 Dynamic background based on stress
-    const getBackground = () => {
-        if (!moodData) return "bg-black";
-        if (moodData.stress > 70) return "bg-indigo-950";
-        if (moodData.stress > 40) return "bg-blue-900";
+    const mood = playlist?.moodData;
+
+    const getTheme = () => {
+        if (!mood) return "bg-black";
+        if (mood.stress > 70) return "bg-indigo-950";
+        if (mood.stress > 40) return "bg-blue-900";
         return "bg-green-900";
     };
 
-    return (
-        <div className={`min-h-screen text-white p-6 transition-all ${getBackground()}`}>
-            <h1 className="text-3xl font-bold mb-6">
-                🎧 AI Mood Music Therapy
-            </h1>
+    const Bar = ({ value }: any) => (
+        <div className="w-full bg-gray-700 h-3 rounded mb-2">
+            <div
+                className="bg-green-400 h-3 rounded"
+                style={{ width: `${value}%` }}
+            />
+        </div>
+    );
 
-            {/* TEXT INPUT */}
-            <div className="flex gap-2 mb-4">
+    return (
+        <div className={`min-h-screen text-white p-6 ${getTheme()}`}>
+            <h1 className="text-3xl font-bold mb-6">AI Mood Therapy</h1>
+
+            <div className="flex gap-2">
                 <input
                     value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="Tell me how you're feeling..."
-                    className="flex-1 px-4 py-2 rounded bg-gray-900 outline-none"
+                    onChange={e => setText(e.target.value)}
+                    className="flex-1 p-3 bg-gray-800 rounded"
+                    placeholder="How are you feeling?"
                 />
                 <button
-                    onClick={() => sendPrompt(text)}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
+                    onClick={() => handleSearch(text)}
+                    className="bg-green-600 px-6 rounded"
                 >
                     Analyze
                 </button>
             </div>
 
-            {/* VOICE INPUT */}
-            <VoiceListener onResult={sendPrompt} />
+            <VoiceListener onResult={handleSearch} />
 
-            {/* LOADING */}
-            {loading && (
-                <p className="mt-4 text-gray-300 animate-pulse">
-                    AI is analyzing your emotional state...
-                </p>
-            )}
+            {loading && <p className="mt-4">Analyzing mental state...</p>}
 
-            {/* 🧠 MENTAL PANEL */}
-            {moodData && (
-                <div className="mt-6 bg-black/40 p-6 rounded-xl backdrop-blur">
-                    <h2 className="text-xl font-semibold mb-3">
-                        🧠 Mental State Analysis
-                    </h2>
+            {playlist && (
+                <>
+                    {/* AI Insight Panel */}
+                    <div className="mt-6 bg-black/40 p-6 rounded-xl">
+                        <h2 className="text-xl font-bold">
+                            🎧 Detected Mood: {mood.mood}
+                        </h2>
+                        <p>🧠 AI Goal: {mood.intent}</p>
+                        <p>🎼 Style: {mood.recommendedStyle}</p>
 
-                    <div className="grid md:grid-cols-2 gap-4 text-sm">
-                        <p>Stress: {moodData.stress}%</p>
-                        <p>Energy: {moodData.energy}%</p>
-                        <p>Focus: {moodData.focus}%</p>
-                        <p>Emotional Load: {moodData.emotional_load}%</p>
+                        <div className="mt-4">
+                            <p>Stress {mood.stress}%</p>
+                            <Bar value={mood.stress} />
+
+                            <p>Energy {mood.energy}%</p>
+                            <Bar value={mood.energy} />
+
+                            <p>Focus {mood.focus}%</p>
+                            <Bar value={mood.focus} />
+                        </div>
                     </div>
 
-                    <p className="mt-3 text-green-400">
-                        Session Type: {sessionType}
-                    </p>
-                </div>
+                    {/* Therapy Mode */}
+                    <button
+                        onClick={() => setTherapyMode(!therapyMode)}
+                        className="mt-6 bg-purple-600 px-4 py-2 rounded"
+                    >
+                        🔒 Therapy Mode {therapyMode ? "ON" : "OFF"}
+                    </button>
+
+                    {!therapyMode && (
+                        <div className="grid md:grid-cols-2 gap-4 mt-6">
+                            {playlist.tracks.map((t: any, i: number) => (
+                                <MusicPlayer key={i} videoId={t.videoId} />
+                            ))}
+                        </div>
+                    )}
+                </>
             )}
-
-            {/* VISUALIZER */}
-            <div className="mt-6">
-                <Visualizer />
-            </div>
-
-            {/* 🎵 PLAYLIST */}
-            <div className="grid md:grid-cols-2 gap-4 mt-8">
-                {tracks.map((track, i) => (
-                    <MusicPlayer key={i} videoId={track.videoId} />
-                ))}
-            </div>
         </div>
     );
 }

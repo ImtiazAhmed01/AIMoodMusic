@@ -1,17 +1,40 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../firebase";
-import { onAuthStateChanged } from "firebase/auth";
 
-const AuthContext = createContext<any>(null);
+interface AuthType {
+    user: any;
+    login: (token: string) => void;
+    logout: () => void;
+}
+
+const AuthContext = createContext<AuthType | null>(null);
 
 export const AuthProvider = ({ children }: any) => {
     const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        return onAuthStateChanged(auth, setUser);
+        const token = localStorage.getItem("token");
+        if (token) setUser({ token });
     }, []);
 
-    return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
+    const login = (token: string) => {
+        localStorage.setItem("token", token);
+        setUser({ token });
+    };
+
+    const logout = () => {
+        localStorage.removeItem("token");
+        setUser(null);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("Wrap inside AuthProvider");
+    return context;
+};
